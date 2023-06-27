@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**"
+            ],
+            "defines": [
+                "__USE_GNU"
+            ],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "gnu23",
+            "cppStandard": "gnu++17",
+            "intelliSenseMode": "linux-gcc-x64",
+            "compilerArgs": [
+                "-lSDL2",
+                "-lm"
+            ]
+        }
+    ],
+    "version": 4
+}
