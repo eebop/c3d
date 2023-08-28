@@ -58,7 +58,7 @@ void submit_pt(scene *s, point3 *p)
     s->num_points++;
 }
 
-int compute_one(point3 *p, camera *c, SDL_FPoint *op, SDL_Point *jp, uint type)
+int compute_one(point3 *p, camera *c, SDL_FPoint *op, SDL_Point *jp, unsigned int type)
 {
     double x = p->x - c->cx;
     double y = p->y - c->cy;
@@ -86,10 +86,11 @@ int compute_one(point3 *p, camera *c, SDL_FPoint *op, SDL_Point *jp, uint type)
     }
     if (angle1 > M_PI_2 || angle1 < -M_PI_2 || angle2 > M_PI_2 || angle2 < -M_PI_2 || outx < 0)
     {
-        printf("returning with t=%d\n", type);
+        // This texture is behind the camera, so we don't need to render it
+        // This assumes the fov is less than 180
         return -1;
     }
-    // SDL_Point *op = (SDL_Point *) malloc(sizeof(SDL_Point));
+    // SDL uses both points and float points for some reason, so we have to create both
     if (op != NULL)
     {
         op->x = angle1 * 180 * 800 / (c->fov * M_PI) + 400;
@@ -103,7 +104,7 @@ int compute_one(point3 *p, camera *c, SDL_FPoint *op, SDL_Point *jp, uint type)
     return 0;
 }
 
-uint lt(scene *s, texture *t1, texture *t2)
+unsigned int lt(scene *s, texture *t1, texture *t2)
 {
     double x1 = s->points[t1->p[0]]->x + s->points[t1->p[1]]->x + s->points[t1->p[2]]->x + s->points[t1->p[3]]->x - (4 * s->c->cx);
     double y1 = s->points[t1->p[0]]->y + s->points[t1->p[1]]->y + s->points[t1->p[2]]->y + s->points[t1->p[3]]->y - (4 * s->c->cy);
@@ -114,13 +115,14 @@ uint lt(scene *s, texture *t1, texture *t2)
     return ((x1 * x1) + (y1 * y1) + (z1 * z1) > (x2 * x2) + (y2 * y2) + (z2 * z2));
 }
 
-texture **_sort(scene *s, texture **t, uint numtex)
+texture **_sort(scene *s, texture **t, unsigned int numtex)
 {
     if (numtex == 0) {
+        // This should never happen but if somehow sort gets called with 0 elements throw a warning and then exit the function
         printf("Warning: _sort() called with n=0; returning t\n");
         return t;
     }
-    texture **pt = malloc(numtex * sizeof(texture *));
+    texture **pt = t;//malloc(numtex * sizeof(texture *));
     if (numtex == 1)
     {
         pt[0] = t[0];
@@ -142,10 +144,10 @@ texture **_sort(scene *s, texture **t, uint numtex)
     }
     texture **h1 = _sort(s, t, numtex / 2);
     texture **h2 = _sort(s, t + (numtex / 2), numtex - (numtex / 2));
-    uint i = 0;
-    uint j = 0;
-    uint im = numtex / 2;
-    uint jm = numtex - (numtex / 2);
+    unsigned int i = 0;
+    unsigned int j = 0;
+    unsigned int im = numtex / 2;
+    unsigned int jm = numtex - (numtex / 2);
     for (int k = 0; k != numtex; k++)
     {
 
@@ -186,7 +188,7 @@ void scene_comp(scene *s)
     free(t);
 }
 
-void render(SDL_Renderer *r, scene *s, uint type)
+void render(SDL_Renderer *r, scene *s, unsigned int type)
 {
     SDL_Vertex v[6];
     SDL_Point p[5];

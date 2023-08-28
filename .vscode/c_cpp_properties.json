@@ -15,7 +15,8 @@
             "compilerArgs": [
                 "-lSDL2",
                 "-lm"
-            ]
+            ],
+            "configurationProvider": "ms-vscode.makefile-tools"
         }
     ],
     "version": 4
