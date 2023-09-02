@@ -90,7 +90,7 @@ int main() {
         submit(s, ((double)rand()/(double)(RAND_MAX)) * 100 - 50, ((double)rand()/(double)(RAND_MAX)) * 100 - 50, ((double)rand()/(double)(RAND_MAX)) * 100 - 50);
     }
 
-    scene_comp(s);
+    compileScene(s);
 
     while (1) {
         i = 0;
@@ -108,8 +108,6 @@ int main() {
         SDL_Delay(1);
         //return;
         if (event.type == SDL_KEYDOWN) {
-            scene_comp(s);
-
             switch (event.key.keysym.sym) {
             case SDLK_w:
                 i++;
@@ -129,23 +127,23 @@ int main() {
             case SDLK_a:
                 k--;
                 break;
-            case SDLK_LEFT:
-                s->c->a1 += ANGLE_MOVEMENT;
-                break;
-            case SDLK_RIGHT:
-                s->c->a1 -= ANGLE_MOVEMENT;
-                break;
-            case SDLK_UP:
-                s->c->a2 += ANGLE_MOVEMENT;
-                break;
-            case SDLK_DOWN:
-                s->c->a2 -= ANGLE_MOVEMENT;
-                break;
+            // case SDLK_LEFT:
+            //     s->c->a1 += ANGLE_MOVEMENT;
+            //     break;
+            // case SDLK_RIGHT:
+            //     s->c->a1 -= ANGLE_MOVEMENT;
+            //     break;
+            // case SDLK_UP:
+            //     s->c->a2 += ANGLE_MOVEMENT;
+            //     break;
+            // case SDLK_DOWN:
+            //     s->c->a2 -= ANGLE_MOVEMENT;
+            //     break;
             case SDLK_k:
                 render_type = 1;
                 break;
             default:
-                printf("unknown code: %d\n", event.key.keysym.sym);
+                printf("unknown key: %d\n", event.key.keysym.sym);
                 break;
             }
         }
@@ -158,17 +156,19 @@ int main() {
                     break;
             }
         }
-        double cos1 = SDL_cos(-s->c->a2 * 2);
-        double cos2 = SDL_cos(-s->c->a1 * 2);
-        double sin1 = SDL_sin(-s->c->a2 * 2);
-        double sin2 = SDL_sin(-s->c->a1 * 2);
-        outj = i * sin1 + j * cos1;
-           i = i * cos1 - j * sin1;
+        // double cos1 = SDL_cos(-s->c->a2 * 2);
+        // double cos2 = SDL_cos(-s->c->a1 * 2);
+        // double sin1 = SDL_sin(-s->c->a2 * 2);
+        // double sin2 = SDL_sin(-s->c->a1 * 2);
+        // outj = i * sin1 + j * cos1;
+        //    i = i * cos1 - j * sin1;
         
-        outk = i * sin2 + k * cos2;
-        outi = i * cos1 - k * sin2;
-        s->c->cx += outi;
-        s->c->cy += outj;
-        s->c->cz += outk;
+        // outk = i * sin2 + k * cos2;
+        // outi = i * cos1 - k * sin2;
+        s->c->cx += i;
+        s->c->cy += j;
+        s->c->cz += k;
+        scene_comp(s);
+
     }
 }

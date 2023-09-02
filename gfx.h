@@ -24,6 +24,10 @@ typedef struct {
 } texture;
 
 typedef struct {
+    int useArctan;
+} scene_settings;
+
+typedef struct {
     camera *c;
     point3 **points;
     uint num_points;
@@ -31,6 +35,7 @@ typedef struct {
     texture **textures;
     uint num_textures;
     uint max_textures;
+    scene_settings *settings;
 } scene;
 
 
@@ -38,6 +43,6 @@ scene *alloc_scene(void);
 //int compute_one(point3 *p, camera *c, SDL_FPoint *op); // not needed as it is private
 void submit_pt(scene *s, point3 *p);
 void submit_txt(scene *s, texture *t);
-void render(SDL_Renderer *r, scene *s, uint type);
-void scene_comp(scene *s);
+void render(SDL_Renderer *r, scene *s);
+void compileScene(scene *s);
 #endif
