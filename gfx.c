@@ -12,10 +12,10 @@ scene *alloc_scene(void)
     s->c->a1 = 0;
     s->c->a2 = 0;
     s->c->fov = 50;
-    s->points = malloc(64 * sizeof(point3 *));
+    s->points = (point3 **) malloc(64 * sizeof(point3 *));
     s->max_points = 64;
     s->num_points = 0;
-    s->textures = malloc(8 * sizeof(texture *));
+    s->textures = (texture **) malloc(64 * sizeof(texture *));
     s->max_textures = 8;
     s->num_textures = 0;
     for (int i = 0; i != 64; i++)
@@ -26,6 +26,8 @@ scene *alloc_scene(void)
     {
         s->points[j] = NULL;
     }
+    s->settings = (scene_settings *) malloc(sizeof(scene_settings));
+    s->settings->useArctan = 1;
 
     return s;
 }
@@ -58,26 +60,26 @@ void submit_pt(scene *s, point3 *p)
     s->num_points++;
 }
 
-int compute_one(point3 *p, camera *c, SDL_FPoint *op, SDL_Point *jp, unsigned int type)
+int compute_one(point3 *p, scene *s, SDL_FPoint *op, SDL_Point *jp)
 {
-    double x = p->x - c->cx;
-    double y = p->y - c->cy;
-    double z = p->z - c->cz;
-    double cos1 = SDL_cos(c->a1);
-    double cos2 = SDL_cos(c->a2);
-    double sin1 = SDL_sin(c->a1);
-    double sin2 = SDL_sin(c->a2);
+    double x = p->x - s->c->cx;
+    double y = p->y - s->c->cy;
+    double z = p->z - s->c->cz;
+    double cos1 = SDL_cos(s->c->a1);
+    double cos2 = SDL_cos(s->c->a2);
+    double sin1 = SDL_sin(s->c->a1);
+    double sin2 = SDL_sin(s->c->a2);
     double outx;
     double outy;
     double outz;
     double angle1;
     double angle2;
     outz = x * sin1 + z * cos1;
-    x = x * cos1 - z * sin1;
+       x = x * cos1 - z * sin1;
 
     outy = x * sin2 - y * cos2;
     outx = x * cos2 + y * sin2;
-    if (type) {
+    if (s->settings->useArctan) {
         angle1 = SDL_atan2(outz, outx);
         angle2 = SDL_atan2(outy, outx);
     } else {
@@ -93,13 +95,13 @@ int compute_one(point3 *p, camera *c, SDL_FPoint *op, SDL_Point *jp, unsigned in
     // SDL uses both points and float points for some reason, so we have to create both
     if (op != NULL)
     {
-        op->x = angle1 * 180 * 800 / (c->fov * M_PI) + 400;
-        op->y = angle2 * 180 * 800 / (c->fov * M_PI) + 400;
+        op->x = angle1 * 180 * 800 / (s->c->fov * M_PI) + 400;
+        op->y = angle2 * 180 * 800 / (s->c->fov * M_PI) + 400;
     }
     if (jp != NULL)
     {
-        jp->x = angle1 * 180 * 800 / (c->fov * M_PI) + 400;
-        jp->y = angle2 * 180 * 800 / (c->fov * M_PI) + 400;
+        jp->x = angle1 * 180 * 800 / (s->c->fov * M_PI) + 400;
+        jp->y = angle2 * 180 * 800 / (s->c->fov * M_PI) + 400;
     }
     return 0;
 }
@@ -122,7 +124,7 @@ texture **_sort(scene *s, texture **t, unsigned int numtex)
         printf("Warning: _sort() called with n=0; returning t\n");
         return t;
     }
-    texture **pt = t;//malloc(numtex * sizeof(texture *));
+    texture **pt = malloc(numtex * sizeof(texture *));
     if (numtex == 1)
     {
         pt[0] = t[0];
@@ -175,7 +177,7 @@ texture **_sort(scene *s, texture **t, unsigned int numtex)
     return pt;
 }
 
-void scene_comp(scene *s)
+void compileScene(scene *s)
 {
     // sort the textures so that the farthest away ones get rendered first
     // this way overlaps look right
@@ -188,7 +190,7 @@ void scene_comp(scene *s)
     free(t);
 }
 
-void render(SDL_Renderer *r, scene *s, unsigned int type)
+void render(SDL_Renderer *r, scene *s)
 {
     SDL_Vertex v[6];
     SDL_Point p[5];
@@ -204,7 +206,7 @@ void render(SDL_Renderer *r, scene *s, unsigned int type)
         for (int j = 0; j != 4; j++)
         {
 
-            if (compute_one(s->points[s->textures[i]->p[j]], s->c, &v[j].position, &p[j], type))
+            if (compute_one(s->points[s->textures[i]->p[j]], s, &v[j].position, &p[j]))
             {
                 goto end;
             }
