@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include "gfx.h"
 #include "math.h"
+#include "quaternion.h"
+
+#define CREATE_QUATERNION(p, _i, _j, _k) p .i = _i ; p .j = _j ; p .k = _k ; p .t = 0; 
 
 #define ANGLE_MOVEMENT (M_PI / 64)
 // int POINT1[] = {0, 1, 3, 2};
@@ -21,7 +24,7 @@ const int POINTS[][4] = {
 };
 
 void submit(scene *s, double i, double j, double k) {
-    point3 *p = malloc(8 * sizeof(point3));
+    quaternion *p = malloc(8 * sizeof(quaternion));
     texture *t = malloc(6 * sizeof(texture));
     for (int n=0;n!=6;n++) {
         t[n].p = malloc(4 * sizeof(int));
@@ -31,14 +34,14 @@ void submit(scene *s, double i, double j, double k) {
         t[n].c.b = 0x00;
         t[n].c.a = 0xFF;
     }
-    p[0] = (point3) {i  , j  , k  };
-    p[1] = (point3) {i  , j  , k+1};
-    p[2] = (point3) {i  , j+1, k  };
-    p[3] = (point3) {i  , j+1, k+1};
-    p[4] = (point3) {i+1, j  , k  };
-    p[5] = (point3) {i+1, j  , k+1};
-    p[6] = (point3) {i+1, j+1, k  };
-    p[7] = (point3) {i+1, j+1, k+1};
+    CREATE_QUATERNION(p[0], i  , j  , k  );
+    CREATE_QUATERNION(p[1], i  , j  , k+1);
+    CREATE_QUATERNION(p[2], i  , j+1, k  );
+    CREATE_QUATERNION(p[3], i  , j+1, k+1);
+    CREATE_QUATERNION(p[4], i+1, j  , k  );
+    CREATE_QUATERNION(p[5], i+1, j  , k+1);
+    CREATE_QUATERNION(p[6], i+1, j+1, k  );
+    CREATE_QUATERNION(p[7], i+1, j+1, k+1);
     
     //t[0].p = POINT1;
 
@@ -131,13 +134,6 @@ int main() {
                 break;
             case SDLK_RIGHT:
                 s->c->a1 -= ANGLE_MOVEMENT;
-                break;
-            case SDLK_UP:
-                s->c->a2 += ANGLE_MOVEMENT;
-                break;
-            case SDLK_DOWN:
-                s->c->a2 -= ANGLE_MOVEMENT;
-                break;
             case SDLK_k:
                 s->settings->useArctan = 0;
                 break;

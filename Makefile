@@ -7,10 +7,10 @@ run: main
 gdb: gdbcompile
 	gdb main
 
-main: main.o gfx.o
+main: main.o gfx.o quaternion.o
 	gcc $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
-gdbcompile: main.og gfx.og
+gdbcompile: main.og gfx.og quaternion.og
 	gcc -g $^ -o $@ $(LDFLAGS)
 
 %.o: %.c
@@ -22,4 +22,5 @@ gdbcompile: main.og gfx.og
 
 clean:
 	-rm *.o
+	-rm *.og
 	-rm main

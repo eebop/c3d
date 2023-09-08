@@ -1,6 +1,7 @@
 #include <SDL2/SDL.h>
 #include <math.h>
 #include "gfx.h"
+#include "quaternion.h"
 
 scene *alloc_scene(void)
 {
@@ -12,7 +13,7 @@ scene *alloc_scene(void)
     s->c->a1 = 0;
     s->c->a2 = 0;
     s->c->fov = 50;
-    s->points = (point3 **) malloc(64 * sizeof(point3 *));
+    s->points = (quaternion **) malloc(64 * sizeof(quaternion *));
     s->max_points = 64;
     s->num_points = 0;
     s->textures = (texture **) malloc(64 * sizeof(texture *));
@@ -48,23 +49,23 @@ void submit_txt(scene *s, texture *t)
     s->num_textures++;
 }
 
-void submit_pt(scene *s, point3 *p)
+void submit_pt(scene *s, quaternion *p)
 {
 
     if (s->num_points == s->max_points)
     {
-        s->points = realloc(s->points, 2 * s->max_points * sizeof(point3 *));
+        s->points = realloc(s->points, 2 * s->max_points * sizeof(quaternion *));
         s->max_points *= 2;
     }
     s->points[s->num_points] = p;
     s->num_points++;
 }
 
-int compute_one(point3 *p, scene *s, SDL_FPoint *op, SDL_Point *jp)
+int compute_one(quaternion *p, scene *s, SDL_FPoint *op, SDL_Point *jp)
 {
-    double x = p->x - s->c->cx;
-    double y = p->y - s->c->cy;
-    double z = p->z - s->c->cz;
+    double x = p->i - s->c->cx;
+    double y = p->j - s->c->cy;
+    double z = p->k - s->c->cz;
     double cos1 = SDL_cos(s->c->a1);
     double cos2 = SDL_cos(s->c->a2);
     double sin1 = SDL_sin(s->c->a1);
@@ -108,12 +109,12 @@ int compute_one(point3 *p, scene *s, SDL_FPoint *op, SDL_Point *jp)
 
 unsigned int lt(scene *s, texture *t1, texture *t2)
 {
-    double x1 = s->points[t1->p[0]]->x + s->points[t1->p[1]]->x + s->points[t1->p[2]]->x + s->points[t1->p[3]]->x - (4 * s->c->cx);
-    double y1 = s->points[t1->p[0]]->y + s->points[t1->p[1]]->y + s->points[t1->p[2]]->y + s->points[t1->p[3]]->y - (4 * s->c->cy);
-    double z1 = s->points[t1->p[0]]->z + s->points[t1->p[1]]->z + s->points[t1->p[2]]->z + s->points[t1->p[3]]->z - (4 * s->c->cz);
-    double x2 = s->points[t2->p[0]]->x + s->points[t2->p[1]]->x + s->points[t2->p[2]]->x + s->points[t2->p[3]]->x - (4 * s->c->cx);
-    double y2 = s->points[t2->p[0]]->y + s->points[t2->p[1]]->y + s->points[t2->p[2]]->y + s->points[t2->p[3]]->y - (4 * s->c->cy);
-    double z2 = s->points[t2->p[0]]->z + s->points[t2->p[1]]->z + s->points[t2->p[2]]->z + s->points[t2->p[3]]->z - (4 * s->c->cz);
+    double x1 = s->points[t1->p[0]]->i + s->points[t1->p[1]]->i + s->points[t1->p[2]]->i + s->points[t1->p[3]]->i - (4 * s->c->cx);
+    double y1 = s->points[t1->p[0]]->j + s->points[t1->p[1]]->j + s->points[t1->p[2]]->j + s->points[t1->p[3]]->j - (4 * s->c->cy);
+    double z1 = s->points[t1->p[0]]->k + s->points[t1->p[1]]->k + s->points[t1->p[2]]->k + s->points[t1->p[3]]->k - (4 * s->c->cz);
+    double x2 = s->points[t2->p[0]]->i + s->points[t2->p[1]]->i + s->points[t2->p[2]]->i + s->points[t2->p[3]]->i - (4 * s->c->cx);
+    double y2 = s->points[t2->p[0]]->j + s->points[t2->p[1]]->j + s->points[t2->p[2]]->j + s->points[t2->p[3]]->j - (4 * s->c->cy);
+    double z2 = s->points[t2->p[0]]->k + s->points[t2->p[1]]->k + s->points[t2->p[2]]->k + s->points[t2->p[3]]->k - (4 * s->c->cz);
     return ((x1 * x1) + (y1 * y1) + (z1 * z1) > (x2 * x2) + (y2 * y2) + (z2 * z2));
 }
 
