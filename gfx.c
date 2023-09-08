@@ -75,11 +75,12 @@ int compute_one(quaternion *p, scene *s, SDL_FPoint *op, SDL_Point *jp)
     double outz;
     double angle1;
     double angle2;
+    /*
     outz = x * sin1 + z * cos1;
     //   x = x * cos1 - z * sin1;
-
     outy = x * sin2 - y * cos2;
     outx = x * (cos2 * cos1) + (y * sin2) - (z * sin1);
+    */
     if (s->settings->useArctan) {
         angle1 = SDL_atan2(outz, outx);
         angle2 = SDL_atan2(outy, outx);
