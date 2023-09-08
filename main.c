@@ -75,7 +75,6 @@ int main() {
     double outi;
     double outj;
     double outk;
-    uint render_type = 0;
     SDL_SetRenderTarget(r, NULL);
 
 
@@ -87,7 +86,7 @@ int main() {
     //scene_comp(s);
 
     for (int i=0;i!=500;i++) {
-        submit(s, ((double)rand()/(double)(RAND_MAX)) * 100 - 50, ((double)rand()/(double)(RAND_MAX)) * 100 - 50, ((double)rand()/(double)(RAND_MAX)) * 100 - 50);
+        submit(s, ((double)rand()/(double)(RAND_MAX)) * 100 - 50 + 200, ((double)rand()/(double)(RAND_MAX)) * 100 - 50, ((double)rand()/(double)(RAND_MAX)) * 100 - 50);
     }
 
     compileScene(s);
@@ -103,7 +102,7 @@ int main() {
         SDL_SetRenderDrawColor(r, 0x00, 0x00, 0x00, 0xFF);
         SDL_RenderClear(r);
         SDL_SetRenderDrawColor(r, 0xFF, 0xFF, 0xFF, 0xFF);
-        render(r, s, render_type);
+        render(r, s);
         SDL_RenderPresent(r);
         SDL_Delay(1);
         //return;
@@ -127,20 +126,20 @@ int main() {
             case SDLK_a:
                 k--;
                 break;
-            // case SDLK_LEFT:
-            //     s->c->a1 += ANGLE_MOVEMENT;
-            //     break;
-            // case SDLK_RIGHT:
-            //     s->c->a1 -= ANGLE_MOVEMENT;
-            //     break;
-            // case SDLK_UP:
-            //     s->c->a2 += ANGLE_MOVEMENT;
-            //     break;
-            // case SDLK_DOWN:
-            //     s->c->a2 -= ANGLE_MOVEMENT;
-            //     break;
+            case SDLK_LEFT:
+                s->c->a1 += ANGLE_MOVEMENT;
+                break;
+            case SDLK_RIGHT:
+                s->c->a1 -= ANGLE_MOVEMENT;
+                break;
+            case SDLK_UP:
+                s->c->a2 += ANGLE_MOVEMENT;
+                break;
+            case SDLK_DOWN:
+                s->c->a2 -= ANGLE_MOVEMENT;
+                break;
             case SDLK_k:
-                render_type = 1;
+                s->settings->useArctan = 0;
                 break;
             default:
                 printf("unknown key: %d\n", event.key.keysym.sym);
@@ -150,7 +149,7 @@ int main() {
         if (event.type == SDL_KEYUP) {
             switch (event.key.keysym.sym) {
                 case SDLK_k:
-                    render_type = 0;
+                    s->settings->useArctan = 1;
                     break;
                 default:
                     break;
@@ -168,7 +167,7 @@ int main() {
         s->c->cx += i;
         s->c->cy += j;
         s->c->cz += k;
-        scene_comp(s);
+        compileScene(s);
 
     }
 }
