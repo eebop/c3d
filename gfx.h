@@ -13,8 +13,7 @@ typedef struct {
     double cx;
     double cy;
     double cz;
-    double a1;
-    double a2;
+    quaternion *q;
     double fov;
 } camera;
 

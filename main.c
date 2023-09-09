@@ -1,10 +1,9 @@
 #include <SDL2/SDL.h>
 #include <stdlib.h>
 #include "gfx.h"
+#include "main.h"
 #include "math.h"
 #include "quaternion.h"
-
-#define CREATE_QUATERNION(p, _i, _j, _k) p .i = _i ; p .j = _j ; p .k = _k ; p .t = 0; 
 
 #define ANGLE_MOVEMENT (M_PI / 64)
 // int POINT1[] = {0, 1, 3, 2};
@@ -129,11 +128,11 @@ int main() {
             case SDLK_a:
                 k--;
                 break;
-            case SDLK_LEFT:
-                s->c->a1 += ANGLE_MOVEMENT;
-                break;
-            case SDLK_RIGHT:
-                s->c->a1 -= ANGLE_MOVEMENT;
+            // case SDLK_LEFT:
+            //     s->c->a1 += ANGLE_MOVEMENT;
+            //     break;
+            // case SDLK_RIGHT:
+            //     s->c->a1 -= ANGLE_MOVEMENT;
             case SDLK_k:
                 s->settings->useArctan = 0;
                 break;

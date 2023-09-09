@@ -1,7 +1,13 @@
 #include <SDL2/SDL.h>
 #include <math.h>
+#include "main.h"
 #include "gfx.h"
 #include "quaternion.h"
+
+
+static const quaternion irotate1 = {0.9987954562051724,  0.049067674327418015, 0, 0};
+static const quaternion irotate2 = {0.9987954562051724, -0.049067674327418015, 0, 0};
+
 
 scene *alloc_scene(void)
 {
@@ -10,8 +16,11 @@ scene *alloc_scene(void)
     s->c->cx = 0.0;
     s->c->cy = 0.0;
     s->c->cz = 0.0;
-    s->c->a1 = 0;
-    s->c->a2 = 0;
+    s->c->q = malloc(sizeof(quaternion));
+    s->c->q->i = 0;
+    s->c->q->j = 0;
+    s->c->q->k = 0;
+    s->c->q->t = 1;
     s->c->fov = 50;
     s->points = (quaternion **) malloc(64 * sizeof(quaternion *));
     s->max_points = 64;
@@ -66,13 +75,14 @@ int compute_one(quaternion *p, scene *s, SDL_FPoint *op, SDL_Point *jp)
     double x = p->i - s->c->cx;
     double y = p->j - s->c->cy;
     double z = p->k - s->c->cz;
-    double cos1 = SDL_cos(s->c->a1);
-    double cos2 = SDL_cos(s->c->a2);
-    double sin1 = SDL_sin(s->c->a1);
-    double sin2 = SDL_sin(s->c->a2);
-    double outx;
-    double outy;
-    double outz;
+    // double cos1 = SDL_cos(s->c->a1);
+    // double cos2 = SDL_cos(s->c->a2);
+    // double sin1 = SDL_sin(s->c->a1);
+    // double sin2 = SDL_sin(s->c->a2);
+
+    double outx = x;
+    double outy = y;
+    double outz = z;
     double angle1;
     double angle2;
     /*
