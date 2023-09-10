@@ -6,9 +6,9 @@
 
 
 static quaternion rotations[3] = {
-    {0.9996988186962042, 0.02429944, 0.00242994, 0.00242994},
-    {0.9996988186962042, 0.00242994, 0.02429944, 0.00242994},
-    {0.9996988186962042, 0.00242994, 0.00242994, 0.02429944}
+    {0.9996988186962042, 0.024541228522912288, 0, 0},
+    {0.9996988186962042, 0, 0.024541228522912288, 0},
+    {0.9996988186962042, 0, 0, 0.024541228522912288}
 };
 
 scene *alloc_scene(void)
@@ -48,7 +48,6 @@ void submitRotation(scene *s, int rotation, int direction) {
     //quaternion qout;
     quaternion qtemp;
     if (direction) {
-        printf("here\n");
         multiplyQuaternion(&(rotations[rotation]), s->c->q, &qtemp);
     } else {
         multiplyWithInverseFirstQuaternion(&(rotations[rotation]), s->c->q, &qtemp);
@@ -183,7 +182,7 @@ texture **_sort(scene *s, texture **t, unsigned int numtex)
     unsigned int j = 0;
     unsigned int im = numtex / 2;
     unsigned int jm = numtex - (numtex / 2);
-    for (int k = 0; k != numtex; k++)
+    for (unsigned int k = 0; k != numtex; k++)
     {
 
         if (i == im)
@@ -231,7 +230,7 @@ void render(SDL_Renderer *r, scene *s)
     {
         v[k].tex_coord = (SDL_FPoint){0.5, 0.5};
     }
-    for (int i = 0; i != s->num_textures; i++)
+    for (unsigned int i = 0; i != s->num_textures; i++)
     {
         for (int k = 0; k!=6;k++) {
             v[k].color = s->textures[i]->c;
@@ -250,6 +249,6 @@ void render(SDL_Renderer *r, scene *s)
         SDL_RenderGeometry(r, NULL, v, 6, NULL, 0);
         SDL_SetRenderDrawColor(r, 0x00, 0xFF, 0x00, 0xFF);
         SDL_RenderDrawLines(r, p, 5);
-        end:
+        end:;
     }
 }

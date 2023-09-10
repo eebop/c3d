@@ -30,11 +30,11 @@ typedef struct {
 typedef struct {
     camera *c;
     quaternion **points;
-    uint num_points;
-    uint max_points;
+    unsigned int num_points;
+    unsigned int max_points;
     texture **textures;
-    uint num_textures;
-    uint max_textures;
+    unsigned int num_textures;
+    unsigned int max_textures;
     scene_settings *settings;
 } scene;
 

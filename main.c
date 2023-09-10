@@ -74,9 +74,9 @@ int main() {
     double i;
     double j;
     double k;
-    double outi;
-    double outj;
-    double outk;
+    quaternion qout;
+    quaternion qtemp;
+    quaternion qin;
     SDL_SetRenderTarget(r, NULL);
 
 
@@ -130,8 +130,6 @@ int main() {
                 break;
             case SDLK_LEFT:
                 submitRotation(s, 1, 1);
-                // DEBUG_QUATERNION(s->c->q)
-                // //printf("t=%f, i=%f, j=%f, k=%f\n", s->c->q->t, s->c->q->i, s->c->q->j, s->c->q->k);
                 break;
             case SDLK_RIGHT:
                 submitRotation(s, 1, 0);
@@ -142,11 +140,6 @@ int main() {
             case SDLK_UP:
                 submitRotation(s, 2, 0);
                 break;
-            // case SDLK_LEFT:
-            //     s->c->a1 += ANGLE_MOVEMENT;
-            //     break;
-            // case SDLK_RIGHT:
-            //     s->c->a1 -= ANGLE_MOVEMENT;
             case SDLK_k:
                 s->settings->useArctan = 0;
                 break;
@@ -177,18 +170,13 @@ int main() {
                     break;
             }
         }
-        // double cos1 = SDL_cos(-s->c->a2 * 2);
-        // double cos2 = SDL_cos(-s->c->a1 * 2);
-        // double sin1 = SDL_sin(-s->c->a2 * 2);
-        // double sin2 = SDL_sin(-s->c->a1 * 2);
-        // outj = i * sin1 + j * cos1;
-        //    i = i * cos1 - j * sin1;
-        
-        // outk = i * sin2 + k * cos2;
-        // outi = i * cos1 - k * sin2;
-        s->c->cx += i;
-        s->c->cy += j;
-        s->c->cz += k;
+        CREATE_QUATERNION(qin, i, j, k);
+        multiplyWithInverseFirstQuaternion(s->c->q, &qin, &qtemp);
+        multiplyQuaternion(&qtemp, s->c->q, &qout);
+
+        s->c->cx += qout.i;
+        s->c->cy += qout.j;
+        s->c->cz += qout.k;
         compileScene(s);
 
     }
