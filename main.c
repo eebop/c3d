@@ -88,7 +88,7 @@ int main() {
     //scene_comp(s);
 
     for (int i=0;i!=500;i++) {
-        submit(s, ((double)rand()/(double)(RAND_MAX)) * 100 - 50 + 200, ((double)rand()/(double)(RAND_MAX)) * 100 - 50, ((double)rand()/(double)(RAND_MAX)) * 100 - 50);
+        submit(s, ((double)rand()/(double)(RAND_MAX)) * 100 - 50, ((double)rand()/(double)(RAND_MAX)) * 100 - 50, ((double)rand()/(double)(RAND_MAX)) * 100 - 50);
     }
 
     compileScene(s);
@@ -128,6 +128,20 @@ int main() {
             case SDLK_a:
                 k--;
                 break;
+            case SDLK_LEFT:
+                submitRotation(s, 1, 1);
+                // DEBUG_QUATERNION(s->c->q)
+                // //printf("t=%f, i=%f, j=%f, k=%f\n", s->c->q->t, s->c->q->i, s->c->q->j, s->c->q->k);
+                break;
+            case SDLK_RIGHT:
+                submitRotation(s, 1, 0);
+                break;
+            case SDLK_DOWN:
+                submitRotation(s, 2, 1);
+                break;
+            case SDLK_UP:
+                submitRotation(s, 2, 0);
+                break;
             // case SDLK_LEFT:
             //     s->c->a1 += ANGLE_MOVEMENT;
             //     break;
@@ -138,6 +152,19 @@ int main() {
                 break;
             default:
                 printf("unknown key: %d\n", event.key.keysym.sym);
+                break;
+            }
+        }
+        if (event.type == SDL_MOUSEBUTTONDOWN) {
+            switch (event.button.button)
+            {
+            case SDL_BUTTON_X1:
+                submitRotation(s, 0, 0);
+                break;
+            case SDL_BUTTON_X2:
+                submitRotation(s, 0, 1);
+                break;
+            default:
                 break;
             }
         }

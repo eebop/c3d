@@ -5,9 +5,11 @@
 #include "quaternion.h"
 
 
-static const quaternion irotate1 = {0.9987954562051724,  0.049067674327418015, 0, 0};
-static const quaternion irotate2 = {0.9987954562051724, -0.049067674327418015, 0, 0};
-
+static quaternion rotations[3] = {
+    {0.9996988186962042, 0.02429944, 0.00242994, 0.00242994},
+    {0.9996988186962042, 0.00242994, 0.02429944, 0.00242994},
+    {0.9996988186962042, 0.00242994, 0.00242994, 0.02429944}
+};
 
 scene *alloc_scene(void)
 {
@@ -42,6 +44,19 @@ scene *alloc_scene(void)
     return s;
 }
 
+void submitRotation(scene *s, int rotation, int direction) {
+    //quaternion qout;
+    quaternion qtemp;
+    if (direction) {
+        printf("here\n");
+        multiplyQuaternion(&(rotations[rotation]), s->c->q, &qtemp);
+    } else {
+        multiplyWithInverseFirstQuaternion(&(rotations[rotation]), s->c->q, &qtemp);
+    }
+    CREATE_QUATERNION((*(s->c->q)), qtemp.i, qtemp.j, qtemp.k);
+    s->c->q->t = qtemp.t;
+}
+
 void submit_txt(scene *s, texture *t)
 {
     if (s->num_textures == s->max_textures)
@@ -72,17 +87,23 @@ void submit_pt(scene *s, quaternion *p)
 
 int compute_one(quaternion *p, scene *s, SDL_FPoint *op, SDL_Point *jp)
 {
-    double x = p->i - s->c->cx;
-    double y = p->j - s->c->cy;
-    double z = p->k - s->c->cz;
+    quaternion qin;
+    quaternion qout;
+    quaternion qtemp;
+    // double x = p->i - s->c->cx;
+    // double y = p->j - s->c->cy;
+    // double z = p->k - s->c->cz;
+    CREATE_QUATERNION(qin, p->i - s->c->cx, p->j - s->c->cy, p->k - s->c->cz);
+    multiplyQuaternion(s->c->q, &qin, &qtemp);
+    multiplyWithInverseSecondQuaternion(&qtemp, s->c->q, &qout);
     // double cos1 = SDL_cos(s->c->a1);
     // double cos2 = SDL_cos(s->c->a2);
     // double sin1 = SDL_sin(s->c->a1);
     // double sin2 = SDL_sin(s->c->a2);
 
-    double outx = x;
-    double outy = y;
-    double outz = z;
+    double outx = qout.i;//x;
+    double outy = qout.j;//y;
+    double outz = qout.k;//z;
     double angle1;
     double angle2;
     /*
