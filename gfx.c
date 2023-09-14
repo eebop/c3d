@@ -23,7 +23,6 @@ scene *alloc_scene(void)
     s->c->q->j = 0;
     s->c->q->k = 0;
     s->c->q->t = 1;
-    s->c->fov = 50;
     s->points = (quaternion **) malloc(64 * sizeof(quaternion *));
     s->max_points = 64;
     s->num_points = 0;
@@ -40,7 +39,7 @@ scene *alloc_scene(void)
     }
     s->settings = (scene_settings *) malloc(sizeof(scene_settings));
     s->settings->useArctan = 1;
-
+    s->settings->fov = 50;
     return s;
 }
 
@@ -89,28 +88,15 @@ int compute_one(quaternion *p, scene *s, SDL_FPoint *op, SDL_Point *jp)
     quaternion qin;
     quaternion qout;
     quaternion qtemp;
-    // double x = p->i - s->c->cx;
-    // double y = p->j - s->c->cy;
-    // double z = p->k - s->c->cz;
     CREATE_QUATERNION(qin, p->i - s->c->cx, p->j - s->c->cy, p->k - s->c->cz);
     multiplyQuaternion(s->c->q, &qin, &qtemp);
     multiplyWithInverseSecondQuaternion(&qtemp, s->c->q, &qout);
-    // double cos1 = SDL_cos(s->c->a1);
-    // double cos2 = SDL_cos(s->c->a2);
-    // double sin1 = SDL_sin(s->c->a1);
-    // double sin2 = SDL_sin(s->c->a2);
 
-    double outx = qout.i;//x;
-    double outy = qout.j;//y;
-    double outz = qout.k;//z;
+    double outx = qout.i;
+    double outy = qout.j;
+    double outz = qout.k;
     double angle1;
     double angle2;
-    /*
-    outz = x * sin1 + z * cos1;
-    //   x = x * cos1 - z * sin1;
-    outy = x * sin2 - y * cos2;
-    outx = x * (cos2 * cos1) + (y * sin2) - (z * sin1);
-    */
     if (s->settings->useArctan) {
         angle1 = SDL_atan2(outz, outx);
         angle2 = SDL_atan2(outy, outx);
@@ -127,13 +113,13 @@ int compute_one(quaternion *p, scene *s, SDL_FPoint *op, SDL_Point *jp)
     // SDL uses both points and float points for some reason, so we have to create both
     if (op != NULL)
     {
-        op->x = angle1 * 180 * 800 / (s->c->fov * M_PI) + 400;
-        op->y = angle2 * 180 * 800 / (s->c->fov * M_PI) + 400;
+        op->x = angle1 * 180 * 800 / (s->settings->fov * M_PI) + 400;
+        op->y = angle2 * 180 * 800 / (s->settings->fov * M_PI) + 400;
     }
     if (jp != NULL)
     {
-        jp->x = angle1 * 180 * 800 / (s->c->fov * M_PI) + 400;
-        jp->y = angle2 * 180 * 800 / (s->c->fov * M_PI) + 400;
+        jp->x = angle1 * 180 * 800 / (s->settings->fov * M_PI) + 400;
+        jp->y = angle2 * 180 * 800 / (s->settings->fov * M_PI) + 400;
     }
     return 0;
 }

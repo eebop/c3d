@@ -4,14 +4,9 @@
 #include "main.h"
 #include "math.h"
 #include "quaternion.h"
+#include "events.h"
 
 #define ANGLE_MOVEMENT (M_PI / 64)
-// int POINT1[] = {0, 1, 3, 2};
-// int POINT2[] = {0, 4, 5, 1};
-// int POINT3[] = {0, 2, 6, 4};
-// int POINT4[] = {7, 6, 4, 5};
-// int POINT5[] = {7, 3, 2, 6};
-// int POINT6[] = {7, 5, 1, 3};
 
 const int POINTS[][4] = {
     {0, 1, 3, 2},
@@ -85,7 +80,6 @@ int main() {
     SDL_RenderClear(r);
     SDL_RenderPresent(r);
 
-    //scene_comp(s);
 
     for (int i=0;i!=500;i++) {
         submit(s, ((double)rand()/(double)(RAND_MAX)) * 100 - 50, ((double)rand()/(double)(RAND_MAX)) * 100 - 50, ((double)rand()/(double)(RAND_MAX)) * 100 - 50);
@@ -107,76 +101,7 @@ int main() {
         render(r, s);
         SDL_RenderPresent(r);
         SDL_Delay(1);
-        //return;
-        if (event.type == SDL_KEYDOWN) {
-            switch (event.key.keysym.sym) {
-            case SDLK_w:
-                i++;
-                break;
-            case SDLK_s:
-                i--;
-                break;
-            case SDLK_q:
-                j++;
-                break;
-            case SDLK_e:
-                j--;
-                break;
-            case SDLK_d:
-                k++;
-                break;
-            case SDLK_a:
-                k--;
-                break;
-            case SDLK_LEFT:
-                submitRotation(s, 1, 1);
-                break;
-            case SDLK_RIGHT:
-                submitRotation(s, 1, 0);
-                break;
-            case SDLK_DOWN:
-                submitRotation(s, 2, 1);
-                break;
-            case SDLK_UP:
-                submitRotation(s, 2, 0);
-                break;
-            case SDLK_k:
-                s->settings->useArctan = 0;
-                break;
-            default:
-                printf("unknown key: %d\n", event.key.keysym.sym);
-                break;
-            }
-        }
-        if (event.type == SDL_MOUSEBUTTONDOWN) {
-            switch (event.button.button)
-            {
-            case SDL_BUTTON_X1:
-                submitRotation(s, 0, 0);
-                break;
-            case SDL_BUTTON_X2:
-                submitRotation(s, 0, 1);
-                break;
-            default:
-                break;
-            }
-        }
-        if (event.type == SDL_KEYUP) {
-            switch (event.key.keysym.sym) {
-                case SDLK_k:
-                    s->settings->useArctan = 1;
-                    break;
-                default:
-                    break;
-            }
-        }
-        CREATE_QUATERNION(qin, i, j, k);
-        multiplyWithInverseFirstQuaternion(s->c->q, &qin, &qtemp);
-        multiplyQuaternion(&qtemp, s->c->q, &qout);
-
-        s->c->cx += qout.i;
-        s->c->cy += qout.j;
-        s->c->cz += qout.k;
+        update_debug(event, s);
         compileScene(s);
 
     }

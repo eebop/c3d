@@ -14,7 +14,6 @@ typedef struct {
     double cy;
     double cz;
     quaternion *q;
-    double fov;
 } camera;
 
 typedef struct {
@@ -25,6 +24,7 @@ typedef struct {
 
 typedef struct {
     int useArctan;
+    double fov;
 } scene_settings;
 
 typedef struct {
@@ -41,7 +41,6 @@ typedef struct {
 
 scene *alloc_scene(void);
 void submitRotation(scene *s, int rotation, int direction);
-//int compute_one(point3 *p, camera *c, SDL_FPoint *op); // not needed as it is private
 void submit_pt(scene *s, quaternion *p);
 void submit_txt(scene *s, texture *t);
 void render(SDL_Renderer *r, scene *s);
