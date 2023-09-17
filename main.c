@@ -5,6 +5,7 @@
 #include "math.h"
 #include "quaternion.h"
 #include "events.h"
+#include "abstraction.h"
 
 #define ANGLE_MOVEMENT (M_PI / 64)
 
@@ -17,9 +18,11 @@ const int POINTS[][4] = {
     {7, 5, 1, 3}
 };
 
-void submit(scene *s, double i, double j, double k) {
+void submit(scene *s, double i, double j, double k, physicsT *physics) {
+    object *o = malloc(sizeof(object));
     quaternion *p = malloc(8 * sizeof(quaternion));
     texture *t = malloc(6 * sizeof(texture));
+    double speed;
     for (int n=0;n!=6;n++) {
         t[n].p = malloc(4 * sizeof(int));
         t[n].np = 4;
@@ -59,13 +62,21 @@ void submit(scene *s, double i, double j, double k) {
     submit_pt(s, p+5);
     submit_pt(s, p+6);
     submit_pt(s, p+7);
+    o->t = t;
+    o->p = p;
+    CREATE_QUATERNION(o->velocity, 0, 0, 0);//((double)rand()/(double)(RAND_MAX)) / 100, ((double)rand()/(double)(RAND_MAX)) / 100, ((double)rand()/(double)(RAND_MAX))/ 100);
+    speed = ((double)rand()/(double)(RAND_MAX)) / 100;
+    CREATE_QUATERNION(o->rotation, ((double)rand()/(double)(RAND_MAX)) * SDL_sin(speed), ((double)rand()/(double)(RAND_MAX)) * SDL_sin(speed), ((double)rand()/(double)(RAND_MAX)) * SDL_sin(speed));
+
+    o->rotation.t = SDL_cos(speed);
+    submitPhysicsObject(physics, o);
 }
 
 int main() {
     SDL_Init(SDL_INIT_VIDEO);
     SDL_Window *w = SDL_CreateWindow("Test", 100, 100, 800, 800, SDL_TEXTUREACCESS_TARGET);
     SDL_Renderer *r = SDL_CreateRenderer(w, 0, SDL_RENDERER_SOFTWARE | SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
-
+    physicsT *physics = allocPhysics();
     double i;
     double j;
     double k;
@@ -81,8 +92,9 @@ int main() {
     SDL_RenderPresent(r);
 
 
+
     for (int i=0;i!=500;i++) {
-        submit(s, ((double)rand()/(double)(RAND_MAX)) * 100 - 50, ((double)rand()/(double)(RAND_MAX)) * 100 - 50, ((double)rand()/(double)(RAND_MAX)) * 100 - 50);
+        submit(s, ((double)rand()/(double)(RAND_MAX)) * 100 - 50, ((double)rand()/(double)(RAND_MAX)) * 100 - 50, ((double)rand()/(double)(RAND_MAX)) * 100 - 50, physics);
     }
 
     compileScene(s);
@@ -103,6 +115,7 @@ int main() {
         SDL_Delay(1);
         update_debug(event, s);
         compileScene(s);
+        physicsStep(physics);
 
     }
 }
