@@ -64,7 +64,7 @@ void submit(scene *s, double i, double j, double k, physicsT *physics) {
     submit_pt(s, p+7);
     o->t = t;
     o->p = p;
-    CREATE_QUATERNION(o->velocity, 0, 0, 0);//((double)rand()/(double)(RAND_MAX)) / 100, ((double)rand()/(double)(RAND_MAX)) / 100, ((double)rand()/(double)(RAND_MAX))/ 100);
+    CREATE_QUATERNION(o->velocity, ((double)rand()/(double)(RAND_MAX) - 0.5) / 100, ((double)rand()/(double)(RAND_MAX) - 0.5) / 100, ((double)rand()/(double)(RAND_MAX) - 0.5)/ 100);
     speed = ((double)rand()/(double)(RAND_MAX)) / 100;
     CREATE_QUATERNION(o->rotation, ((double)rand()/(double)(RAND_MAX)) * SDL_sin(speed), ((double)rand()/(double)(RAND_MAX)) * SDL_sin(speed), ((double)rand()/(double)(RAND_MAX)) * SDL_sin(speed));
 
@@ -114,8 +114,7 @@ int main() {
         SDL_RenderPresent(r);
         SDL_Delay(1);
         update_debug(event, s);
-        compileScene(s);
         physicsStep(physics);
-
+        compileScene(s);
     }
 }

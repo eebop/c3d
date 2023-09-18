@@ -7,6 +7,7 @@ physicsT *allocPhysics(void) {
     p->maxdata = 16;
     p->usedata = 0;
     p->data = malloc(16 * sizeof(object *));
+    p->last_tick = SDL_GetTicks64();
     return p;
 }
 
@@ -41,7 +42,16 @@ void stepOne(object *o) {
 }
 
 void physicsStep(physicsT *p) {
+    uint64_t time = (SDL_GetTicks64() - p->last_tick) / 64;
+    //printf("time is %llu\n", time);
+    //return;
+    if (time > 0) {
+        p->last_tick = SDL_GetTicks64();
+    }
     for (int i=0;i!=p->usedata;i++) {
-        stepOne(p->data[i]);
+        // todo: this can be more optimized by splitting up step one and making the movements be multiplied
+        for (uint64_t j=0;j!=time;j++) {
+            stepOne(p->data[i]);
+        }
     }
 }

@@ -16,6 +16,7 @@ typedef struct {
     object **data;
     unsigned int maxdata;
     unsigned int usedata;
+    uint64_t last_tick;
 } physicsT;
 
 physicsT *allocPhysics(void);
