@@ -40,7 +40,16 @@ scene *alloc_scene(void)
     s->settings = (scene_settings *) malloc(sizeof(scene_settings));
     s->settings->useArctan = 1;
     s->settings->fov = 50;
+    s->settings->grabMouse = 0;
     return s;
+}
+
+void submitQuaternionRotation(scene *s, quaternion *rotation) {
+    //DEBUG_QUATERNION((rotation));
+    quaternion qtemp;
+    multiplyQuaternion(rotation, s->c->q, &qtemp);
+    CREATE_QUATERNION((*(s->c->q)), qtemp.i, qtemp.j, qtemp.k);
+    s->c->q->t = qtemp.t;
 }
 
 void submitRotation(scene *s, int rotation, int direction) {
@@ -148,6 +157,7 @@ texture **_sort(scene *s, texture **t, unsigned int numtex)
         pt[0] = t[0];
         return pt;
     }
+    /*
     if (numtex == 2)
     {
         if (lt(s, t[0], t[1]))
@@ -161,7 +171,7 @@ texture **_sort(scene *s, texture **t, unsigned int numtex)
             pt[1] = t[0];
         }
         return pt;
-    }
+    }*/
     texture **h1 = _sort(s, t, numtex / 2);
     texture **h2 = _sort(s, t + (numtex / 2), numtex - (numtex / 2));
     unsigned int i = 0;

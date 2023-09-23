@@ -1,4 +1,4 @@
-CFLAGS = -O3
+CFLAGS = -O3 -Wall -Wextra
 LDFLAGS = -lSDL2 -lm
 
 run: main

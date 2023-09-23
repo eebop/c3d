@@ -77,12 +77,6 @@ int main() {
     SDL_Window *w = SDL_CreateWindow("Test", 100, 100, 800, 800, SDL_TEXTUREACCESS_TARGET);
     SDL_Renderer *r = SDL_CreateRenderer(w, 0, SDL_RENDERER_SOFTWARE | SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
     physicsT *physics = allocPhysics();
-    double i;
-    double j;
-    double k;
-    quaternion qout;
-    quaternion qtemp;
-    quaternion qin;
     SDL_SetRenderTarget(r, NULL);
 
 
@@ -93,27 +87,29 @@ int main() {
 
 
 
-    for (int i=0;i!=500;i++) {
+    for (int i=0;i!=1000;i++) {
         submit(s, ((double)rand()/(double)(RAND_MAX)) * 100 - 50, ((double)rand()/(double)(RAND_MAX)) * 100 - 50, ((double)rand()/(double)(RAND_MAX)) * 100 - 50, physics);
     }
 
     compileScene(s);
 
     while (1) {
-        i = 0;
-        j = 0;
-        k = 0;
-        SDL_PollEvent(&event);
-        if (event.type == SDL_QUIT) {
-            return 0;
-        }
         SDL_SetRenderDrawColor(r, 0x00, 0x00, 0x00, 0xFF);
         SDL_RenderClear(r);
         SDL_SetRenderDrawColor(r, 0xFF, 0xFF, 0xFF, 0xFF);
         render(r, s);
         SDL_RenderPresent(r);
-        SDL_Delay(1);
-        update_debug(event, s);
+        //SDL_Delay(1);
+
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) {
+                return 0;
+            }
+            update_debug(event, s);
+            if (s->settings->grabMouse && event.type == SDL_MOUSEMOTION) {
+                mouseUpdate(event, s);
+            }
+        }
         physicsStep(physics);
         compileScene(s);
     }

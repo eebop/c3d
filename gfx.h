@@ -25,6 +25,7 @@ typedef struct {
 typedef struct {
     int useArctan;
     double fov;
+    int grabMouse;
 } scene_settings;
 
 typedef struct {
@@ -41,6 +42,7 @@ typedef struct {
 
 scene *alloc_scene(void);
 void submitRotation(scene *s, int rotation, int direction);
+void submitQuaternionRotation(scene *s, quaternion *rotation);
 void submit_pt(scene *s, quaternion *p);
 void submit_txt(scene *s, texture *t);
 void render(SDL_Renderer *r, scene *s);

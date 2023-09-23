@@ -2,13 +2,20 @@
 #include "gfx.h"
 #include "quaternion.h"
 
+void mouseUpdate(SDL_Event event, scene *s) {
+    // we can't use xrel and yrel because warping generates a mousemotion event
+    //printf("%d %d\n", event.motion.x, event.motion.y);
+    submitQuaternionRotation(s, &((quaternion) {SDL_cos((-(double)event.motion.xrel) / 1024.0), 0, SDL_sin((-(double)event.motion.xrel) / 1024.0), 0}));
+    submitQuaternionRotation(s, &((quaternion) {SDL_cos(( (double)event.motion.yrel) / 1024.0), 0, 0, SDL_sin(( (double)event.motion.yrel) / 1024.0)}));
+}
+
 void update_debug(SDL_Event event, scene *s) {
     quaternion qin;
     quaternion qtemp;
     quaternion qout;
-    double i;
-    double j;
-    double k;
+    double i = 0;
+    double j = 0;
+    double k = 0;
     if (event.type == SDL_KEYDOWN) {
         switch (event.key.keysym.sym) {
         case SDLK_w:
@@ -43,6 +50,16 @@ void update_debug(SDL_Event event, scene *s) {
             break;
         case SDLK_k:
             s->settings->useArctan = 0;
+            break;
+        case SDLK_l:
+            if (s->settings->grabMouse) {
+                SDL_SetRelativeMouseMode(SDL_DISABLE);
+                s->settings->grabMouse = 0;
+
+            } else {
+                s->settings->grabMouse = 1;
+                SDL_SetRelativeMouseMode(SDL_ENABLE);
+            }
             break;
         default:
             printf("unknown key: %d\n", event.key.keysym.sym);
