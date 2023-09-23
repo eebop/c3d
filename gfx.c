@@ -38,7 +38,7 @@ scene *alloc_scene(void)
         s->points[j] = NULL;
     }
     s->settings = (scene_settings *) malloc(sizeof(scene_settings));
-    s->settings->useArctan = 1;
+    s->settings->useArctan = 0;
     s->settings->fov = 50;
     s->settings->grabMouse = 0;
     return s;

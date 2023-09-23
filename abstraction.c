@@ -48,7 +48,7 @@ void physicsStep(physicsT *p) {
     if (time > 0) {
         p->last_tick = SDL_GetTicks64();
     }
-    for (int i=0;i!=p->usedata;i++) {
+    for (unsigned int i=0;i!=p->usedata;i++) {
         // todo: this can be more optimized by splitting up step one and making the movements be multiplied
         for (uint64_t j=0;j!=time;j++) {
             stepOne(p->data[i]);

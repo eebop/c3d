@@ -2,3 +2,7 @@
 *.og
 .vscode
 main
+gdbcompile
+gmon.out
+prof_output
+valgrind.rpt
