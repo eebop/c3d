@@ -11,14 +11,48 @@ physicsT *allocPhysics(void) {
     return p;
 }
 
-void submitPhysicsObject(physicsT *p, object *o) {
+entity *allocEntity() {
+    entity *e = malloc(sizeof(entity));
+    e->maxobjs = 1;
+    e->useobjs = 0;
+    e->o = malloc(sizeof(object *));
+    return e;
+}
+void regenerateCenter(entity *e) {
+    double counter = 0;
+    CREATE_QUATERNION(e->centerofmass, 0, 0, 0);
+    for (int i=0;i!=e->useobjs;i++) {
+        for (int j=0;j!=8;j++) {
+            counter++;
+            e->centerofmass.i += e->o[i]->p[j].i;
+            e->centerofmass.j += e->o[i]->p[j].j;
+            e->centerofmass.k += e->o[i]->p[j].k;
+        }
+    }
+    if (counter) {
+        e->centerofmass.i /= counter;
+        e->centerofmass.j /= counter;
+        e->centerofmass.k /= counter;
+    }
+}
+
+void submitObjectForEntity(entity *e, object *o) {
+    if (e->maxobjs == e->useobjs) {
+        e->o = realloc(e->o, 2 * e->maxobjs * sizeof(object *));
+        e->maxobjs *= 2;
+    }
+    e->o[e->useobjs++] = o;
+    regenerateCenter(e);
+}
+
+void submitPhysicsEntity(physicsT *p, entity *e) {
     if (p->maxdata == p->usedata) {
         p->data = realloc(p->data, 2 * p->maxdata * sizeof(object *));
         p->maxdata *= 2;
     }
-    p->data[p->usedata++] = o;
+    p->data[p->usedata++] = e;
 }
-
+/*
 void stepOne(object *o) {
     quaternion center;
     quaternion point;
@@ -40,6 +74,38 @@ void stepOne(object *o) {
         o->p[x].k = qout.k + center.k + o->velocity.k;
     }
 }
+*/
+void step(object *o, quaternion *center, quaternion *rotation, quaternion *movement) {
+    quaternion point;
+    for (int i=0;i!=8;i++) {
+        point.t = 0;
+        point.i = o->p[i].i - center->i;
+        point.j = o->p[i].j - center->j;
+        point.k = o->p[i].k - center->k;
+        multiplyQuaternion(rotation, &point, &point);
+        multiplyWithInverseSecondQuaternion(&point, rotation, &point);
+        o->p[i].i = point.i + center->i + movement->i;
+        o->p[i].j = point.j + center->j + movement->j;
+        o->p[i].k = point.k + center->k + movement->k;
+    }
+}
+
+void stepEntity(entity *e, double amount) {
+    quaternion rotation = e->rotation;
+    quaternion movement;
+    for(uint64_t i=1;i!=amount;i++) {
+        multiplyQuaternion(&rotation, &(e->rotation), &rotation);
+    }
+    movement.t = e->velocity.t * amount;
+    movement.i = e->velocity.i * amount;
+    movement.j = e->velocity.j * amount;
+    movement.k = e->velocity.k * amount;
+    for (int j=0;j!=e->useobjs;j++) {
+        step(e->o[j], &(e->centerofmass), &rotation, &movement);
+        regenerateCenter(e);
+    }
+
+}
 
 void physicsStep(physicsT *p) {
     uint64_t time = (SDL_GetTicks64() - p->last_tick) / 64;
@@ -47,11 +113,16 @@ void physicsStep(physicsT *p) {
     //return;
     if (time > 0) {
         p->last_tick = SDL_GetTicks64();
+    } else {
+        return;
     }
     for (unsigned int i=0;i!=p->usedata;i++) {
-        // todo: this can be more optimized by splitting up step one and making the movements be multiplied
-        for (uint64_t j=0;j!=time;j++) {
-            stepOne(p->data[i]);
-        }
+        stepEntity(p->data[i], (double) time);
     }
 }
+
+/*
+entity *loadEntity(char *string) {
+    
+}
+*/

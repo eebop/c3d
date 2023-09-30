@@ -20,6 +20,7 @@ const int POINTS[][4] = {
 
 void submit(scene *s, double i, double j, double k, physicsT *physics) {
     object *o = malloc(sizeof(object));
+    entity *e = allocEntity();
     quaternion *p = malloc(8 * sizeof(quaternion));
     texture *t = malloc(6 * sizeof(texture));
     double speed;
@@ -68,16 +69,17 @@ void submit(scene *s, double i, double j, double k, physicsT *physics) {
     submit_pt(s, p+7);
     o->t = t;
     o->p = p;
-    CREATE_QUATERNION(o->velocity, ((double)rand()/(double)(RAND_MAX) - 0.5) / 40, ((double)rand()/(double)(RAND_MAX) - 0.5) / 40, ((double)rand()/(double)(RAND_MAX) - 0.5)/ 40);
+    CREATE_QUATERNION(e->velocity, ((double)rand()/(double)(RAND_MAX) - 0.5) / 40, ((double)rand()/(double)(RAND_MAX) - 0.5) / 40, ((double)rand()/(double)(RAND_MAX) - 0.5)/ 40);
     speed = ((double)rand()/(double)(RAND_MAX)) / 30;
     x = (double)rand()/(double)(RAND_MAX);
     y = (double)rand()/(double)(RAND_MAX);
     z = (double)rand()/(double)(RAND_MAX);
     vectorforce = SDL_sin(speed) / SDL_sqrt((x * x) + (y * y) + (z * z));
-    CREATE_QUATERNION(o->rotation, x * vectorforce, y * vectorforce, z * vectorforce);
+    CREATE_QUATERNION(e->rotation, x * vectorforce, y * vectorforce, z * vectorforce);
 
-    o->rotation.t = SDL_cos(speed);
-    submitPhysicsObject(physics, o);
+    e->rotation.t = SDL_cos(speed);
+    submitObjectForEntity(e, o);
+    submitPhysicsEntity(physics, e);
 }
 
 int main() {

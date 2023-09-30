@@ -5,15 +5,17 @@
 typedef struct {
     quaternion *p;
     texture *t;
+} object;
+typedef struct {
+    object **o;
+    quaternion centerofmass;
     quaternion rotation;
     quaternion velocity;
-} object;
-// typedef struct {
-// 
-// } entity;
-// Todo: use entity, add stepsize
+    unsigned int maxobjs;
+    unsigned int useobjs;
+} entity;
 typedef struct {
-    object **data;
+    entity **data;
     unsigned int maxdata;
     unsigned int usedata;
     uint64_t last_tick;
@@ -21,8 +23,16 @@ typedef struct {
 
 physicsT *allocPhysics(void);
 
-void submitPhysicsObject(physicsT *p, object *o);
+void submitPhysicsEntity(physicsT *p, entity *e);
 
 void physicsStep(physicsT *p);
+
+void submitObjectForEntity(entity *e, object *o);
+
+void regenerateCenter(entity *e);
+
+entity *loadEntity(char *data);
+
+entity *allocEntity();
 
 #endif
