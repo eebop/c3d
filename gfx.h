@@ -2,6 +2,11 @@
 #define __GFX_H
 #include "SDL2/SDL.h"
 #include "quaternion.h"
+#include <stdbool.h>
+
+#define FOUR_POINTS 4
+#define ONE_POINT 1
+
 /*
 typedef struct {
     double x;
@@ -18,8 +23,9 @@ typedef struct {
 
 typedef struct {
     int *p;
-    int np;
+    uint16_t type;
     SDL_Color c;
+    bool front;
 } texture;
 
 typedef struct {

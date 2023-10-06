@@ -30,11 +30,12 @@ void submit(scene *s, double i, double j, double k, physicsT *physics) {
     double z;
     for (int n=0;n!=6;n++) {
         t[n].p = malloc(4 * sizeof(int));
-        t[n].np = 4;
+        t[n].front = false;
         t[n].c.r = 0xFF;
         t[n].c.g = 0x00;
         t[n].c.b = 0x00;
         t[n].c.a = 0xFF;
+        t[n].type = FOUR_POINTS;
     }
     CREATE_QUATERNION(p[0], i  , j  , k  );
     CREATE_QUATERNION(p[1], i  , j  , k+1);
@@ -69,6 +70,8 @@ void submit(scene *s, double i, double j, double k, physicsT *physics) {
     submit_pt(s, p+7);
     o->t = t;
     o->p = p;
+    o->isreal = true;
+    o->numpoints = 8;
     CREATE_QUATERNION(e->velocity, ((double)rand()/(double)(RAND_MAX) - 0.5) / 40, ((double)rand()/(double)(RAND_MAX) - 0.5) / 40, ((double)rand()/(double)(RAND_MAX) - 0.5)/ 40);
     speed = ((double)rand()/(double)(RAND_MAX)) / 30;
     x = (double)rand()/(double)(RAND_MAX);
@@ -79,7 +82,37 @@ void submit(scene *s, double i, double j, double k, physicsT *physics) {
 
     e->rotation.t = SDL_cos(speed);
     submitObjectForEntity(e, o);
+    // visually show rotation and movement
+    o = malloc(2 * sizeof(object));
+    t = malloc(2 * sizeof(texture));
+    p = malloc(sizeof(quaternion));
+    for (int i=0;i!=2;i++) {
+        t[i].p = malloc(sizeof(int));
+        *(t[i].p) = i;
+        t[i].front = true;
+        t[i].c.r = 0x00;
+        t[i].c.g = 0x00;
+        t[i].c.b = 0xFF;
+        t[i].c.a = 0xFF;
+        t[i].type = ONE_POINT;
+        submit_txt(s, t+i);
+    }
+    regenerateCenter(e);
+    CREATE_QUATERNION((*p), e->centerofmass.i + e->rotation.i / SDL_sin(speed), e->centerofmass.j + e->rotation.j / SDL_sin(speed), e->centerofmass.k + e->rotation.k / SDL_sin(speed));
+    submit_pt(s, p);
+    submit_pt(s, &(e->centerofmass));
+    o[0].t = t;
+    o[0].p = p;
+    o[0].isreal = false;
+    o[0].numpoints = 1;
+    o[1].t = t + 1;
+    o[1].p = &(e->centerofmass);
+    o[1].isreal = false;
+    o[1].numpoints = 1;
+    submitObjectForEntity(e, o);
+    submitObjectForEntity(e, o+1);
     submitPhysicsEntity(physics, e);
+
 }
 
 int main() {

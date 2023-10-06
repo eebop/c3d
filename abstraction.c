@@ -22,11 +22,13 @@ void regenerateCenter(entity *e) {
     double counter = 0;
     CREATE_QUATERNION(e->centerofmass, 0, 0, 0);
     for (int i=0;i!=e->useobjs;i++) {
-        for (int j=0;j!=8;j++) {
-            counter++;
-            e->centerofmass.i += e->o[i]->p[j].i;
-            e->centerofmass.j += e->o[i]->p[j].j;
-            e->centerofmass.k += e->o[i]->p[j].k;
+        if (e->o[i]->isreal) {
+            for (int j=0;j!=8;j++) {
+                counter++;
+                e->centerofmass.i += e->o[i]->p[j].i;
+                e->centerofmass.j += e->o[i]->p[j].j;
+                e->centerofmass.k += e->o[i]->p[j].k;
+            }
         }
     }
     if (counter) {
@@ -77,7 +79,7 @@ void stepOne(object *o) {
 */
 void step(object *o, quaternion *center, quaternion *rotation, quaternion *movement) {
     quaternion point;
-    for (int i=0;i!=8;i++) {
+    for (int i=0;i!=o->numpoints;i++) {
         point.t = 0;
         point.i = o->p[i].i - center->i;
         point.j = o->p[i].j - center->j;

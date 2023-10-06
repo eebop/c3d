@@ -5,7 +5,7 @@ run: main
 	./main
 
 gdb: gdbcompile
-	gdb main
+	gdb gdbcompile
 
 main: main.o gfx.o quaternion.o events.o abstraction.o
 	gcc $(CFLAGS) $^ -o $@ $(LDFLAGS)

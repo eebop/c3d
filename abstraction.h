@@ -2,9 +2,12 @@
 #define __ABSTRACTION_H
 #include "gfx.h"
 #include "quaternion.h"
+#include <stdbool.h>
 typedef struct {
     quaternion *p;
     texture *t;
+    bool isreal;
+    int numpoints;
 } object;
 typedef struct {
     object **o;

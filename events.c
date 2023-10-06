@@ -49,7 +49,7 @@ void update_debug(SDL_Event event, scene *s) {
             submitRotation(s, 2, 0);
             break;
         case SDLK_k:
-            s->settings->useArctan = 0;
+            s->settings->useArctan = 1;
             break;
         case SDLK_l:
             if (s->settings->grabMouse) {
@@ -82,7 +82,7 @@ void update_debug(SDL_Event event, scene *s) {
     if (event.type == SDL_KEYUP) {
         switch (event.key.keysym.sym) {
             case SDLK_k:
-                s->settings->useArctan = 1;
+                s->settings->useArctan = 0;
                 break;
             default:
                 break;

@@ -5,10 +5,13 @@
 #include "quaternion.h"
 
 
-static quaternion rotations[3] = {
-    {0.9996988186962042, 0.024541228522912288, 0, 0},
-    {0.9996988186962042, 0, 0.024541228522912288, 0},
-    {0.9996988186962042, 0, 0, 0.024541228522912288}
+static quaternion rotations[6] = {
+    {0.9996988186962042, -0.024541228522912288, 0, 0},
+    {0.9996988186962042, 0, -0.024541228522912288, 0},
+    {0.9996988186962042, 0, 0, -0.024541228522912288},
+    {0.9996988186962042,  0.024541228522912288, 0, 0},
+    {0.9996988186962042,  0, 0.024541228522912288, 0},
+    {0.9996988186962042,  0, 0, 0.024541228522912288}
 };
 
 scene *alloc_scene(void)
@@ -45,23 +48,11 @@ scene *alloc_scene(void)
 }
 
 void submitQuaternionRotation(scene *s, quaternion *rotation) {
-    //DEBUG_QUATERNION((rotation));
-    quaternion qtemp;
-    multiplyQuaternion(rotation, s->c->q, &qtemp);
-    CREATE_QUATERNION((*(s->c->q)), qtemp.i, qtemp.j, qtemp.k);
-    s->c->q->t = qtemp.t;
+    multiplyQuaternion(rotation, s->c->q, s->c->q);
 }
 
 void submitRotation(scene *s, int rotation, int direction) {
-    //quaternion qout;
-    quaternion qtemp;
-    if (direction) {
-        multiplyQuaternion(&(rotations[rotation]), s->c->q, &qtemp);
-    } else {
-        multiplyWithInverseFirstQuaternion(&(rotations[rotation]), s->c->q, &qtemp);
-    }
-    CREATE_QUATERNION((*(s->c->q)), qtemp.i, qtemp.j, qtemp.k);
-    s->c->q->t = qtemp.t;
+    submitQuaternionRotation(s, &(rotations[rotation + (3 * direction)]));
 }
 
 void submit_txt(scene *s, texture *t)
@@ -71,10 +62,15 @@ void submit_txt(scene *s, texture *t)
         s->textures = realloc(s->textures, 2 * s->max_textures * sizeof(texture *));
         s->max_textures *= 2;
     }
-    t->p[0] += s->num_points;
-    t->p[1] += s->num_points;
-    t->p[2] += s->num_points;
-    t->p[3] += s->num_points;
+    if (t->type == FOUR_POINTS) {
+        t->p[0] += s->num_points;
+        t->p[1] += s->num_points;
+        t->p[2] += s->num_points;
+        t->p[3] += s->num_points;
+    }
+    if (t->type == ONE_POINT) {
+        t->p[0] += s->num_points;
+    }
 
     s->textures[s->num_textures] = t;
     s->num_textures++;
@@ -100,7 +96,6 @@ int compute_one(quaternion *p, scene *s, SDL_FPoint *op, SDL_Point *jp)
     CREATE_QUATERNION(qin, p->i - s->c->cx, p->j - s->c->cy, p->k - s->c->cz);
     multiplyQuaternion(s->c->q, &qin, &qtemp);
     multiplyWithInverseSecondQuaternion(&qtemp, s->c->q, &qout);
-
     double outx = qout.i;
     double outy = qout.j;
     double outz = qout.k;
@@ -135,6 +130,12 @@ int compute_one(quaternion *p, scene *s, SDL_FPoint *op, SDL_Point *jp)
 
 unsigned int lt(scene *s, texture *t1, texture *t2)
 {
+    if (t1->front) {
+        return 0;
+    }
+    if (t2->front) {
+        return 1;
+    }
     double x1 = s->points[t1->p[0]]->i + s->points[t1->p[1]]->i + s->points[t1->p[2]]->i + s->points[t1->p[3]]->i - (4 * s->c->cx);
     double y1 = s->points[t1->p[0]]->j + s->points[t1->p[1]]->j + s->points[t1->p[2]]->j + s->points[t1->p[3]]->j - (4 * s->c->cy);
     double z1 = s->points[t1->p[0]]->k + s->points[t1->p[1]]->k + s->points[t1->p[2]]->k + s->points[t1->p[3]]->k - (4 * s->c->cz);
@@ -157,7 +158,6 @@ texture **_sort(scene *s, texture **t, unsigned int numtex)
         pt[0] = t[0];
         return pt;
     }
-    /*
     if (numtex == 2)
     {
         if (lt(s, t[0], t[1]))
@@ -171,7 +171,7 @@ texture **_sort(scene *s, texture **t, unsigned int numtex)
             pt[1] = t[0];
         }
         return pt;
-    }*/
+    }
     texture **h1 = _sort(s, t, numtex / 2);
     texture **h2 = _sort(s, t + (numtex / 2), numtex - (numtex / 2));
     unsigned int i = 0;
@@ -218,6 +218,46 @@ void compileScene(scene *s)
     free(t);
 }
 
+
+void DrawCircle(SDL_Renderer* renderer, int32_t centreX, int32_t centreY, int32_t radius)
+    {
+    const int32_t diameter = (radius * 2);
+
+    int32_t x = (radius - 1);
+    int32_t y = 0;
+    int32_t tx = 1;
+    int32_t ty = 1;
+    int32_t error = (tx - diameter);
+
+    while (x >= y)
+    {
+    // Each of the following renders an octant of the circle
+    SDL_RenderDrawPoint(renderer, centreX + x, centreY - y);
+    SDL_RenderDrawPoint(renderer, centreX + x, centreY + y);
+    SDL_RenderDrawPoint(renderer, centreX - x, centreY - y);
+    SDL_RenderDrawPoint(renderer, centreX - x, centreY + y);
+    SDL_RenderDrawPoint(renderer, centreX + y, centreY - x);
+    SDL_RenderDrawPoint(renderer, centreX + y, centreY + x);
+    SDL_RenderDrawPoint(renderer, centreX - y, centreY - x);
+    SDL_RenderDrawPoint(renderer, centreX - y, centreY + x);
+
+      if (error <= 0)
+      {
+      	++y;
+      	error += ty;
+      	ty += 2;
+      }
+
+      if (error > 0)
+      {
+      	--x;
+      	tx += 2;
+      	error += (tx - diameter);
+      }
+
+    }
+}
+
 void render(SDL_Renderer *r, scene *s)
 {
     SDL_Vertex v[6];
@@ -228,23 +268,36 @@ void render(SDL_Renderer *r, scene *s)
     }
     for (unsigned int i = 0; i != s->num_textures; i++)
     {
-        for (int k = 0; k!=6;k++) {
-            v[k].color = s->textures[i]->c;
-        }
-        for (int j = 0; j != 4; j++)
-        {
-
-            if (compute_one(s->points[s->textures[i]->p[j]], s, &v[j].position, &p[j]))
+        if (s->textures[i]->type == FOUR_POINTS) {
+            for (int k = 0; k!=6;k++) {
+                v[k].color = s->textures[i]->c;
+            }
+            for (int j = 0; j != 4; j++)
             {
+
+                if (compute_one(s->points[s->textures[i]->p[j]], s, &v[j].position, &p[j]))
+                {
+                    goto end;
+                }
+            }
+            v[4] = v[0];
+            v[5] = v[2];
+            p[4] = p[0];
+            SDL_RenderGeometry(r, NULL, v, 6, NULL, 0);
+            SDL_SetRenderDrawColor(r, 0x00, 0xFF, 0x00, 0xFF);
+            SDL_RenderDrawLines(r, p, 5);
+
+        }
+        if (s->textures[i]->type == ONE_POINT) {
+            if (compute_one(s->points[s->textures[i]->p[0]], s, &v[0].position, &p[0])) {
                 goto end;
             }
+            
+            SDL_SetRenderDrawColor(r, 0x00, 0x00, 0xFF, 0xFF);
+            DrawCircle(r, p[0].x, p[0].y, 2);
+            //SDL_FillRect(r, &re, 0x9090AFF);
         }
-        v[4] = v[0];
-        v[5] = v[2];
-        p[4] = p[0];
-        SDL_RenderGeometry(r, NULL, v, 6, NULL, 0);
-        SDL_SetRenderDrawColor(r, 0x00, 0xFF, 0x00, 0xFF);
-        SDL_RenderDrawLines(r, p, 5);
         end:;
+
     }
 }
