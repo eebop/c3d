@@ -1,8 +1,12 @@
 *.o
 *.og
 .vscode
+.vs
 main
 gdbcompile
 gmon.out
 prof_output
 valgrind.rpt
+c3d.sln
+c3d.vcxproj*
+main.exe

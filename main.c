@@ -115,7 +115,11 @@ void submit(scene *s, double i, double j, double k, physicsT *physics) {
 
 }
 
-int main() {
+int WinMain(int argc, char *argv[]) {
+    main(argc, argv);
+}
+
+int main(int argc, char *argv[]) {
     SDL_Init(SDL_INIT_VIDEO);
     SDL_Window *w = SDL_CreateWindow("Test", 100, 100, 800, 800, SDL_TEXTUREACCESS_TARGET);
     SDL_Renderer *r = SDL_CreateRenderer(w, 0, SDL_RENDERER_SOFTWARE | SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
