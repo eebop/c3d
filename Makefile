@@ -1,7 +1,7 @@
 GLOBALCFLAGS = -O3
-WINCFLAGS = -I/cygdrive/c/Users/kiera/Downloads/SDL2-devel-2.28.3-mingw/SDL2-2.28.3/x86_64-w64-mingw32/include
+WINCFLAGS = -ISDL/Windows/include
 LINUXLDFLAGS = -lSDL2 -lm
-WINLDFLAGS = -L/cygdrive/c/Users/kiera/Downloads/SDL2-devel-2.28.3-mingw/SDL2-2.28.3/x86_64-w64-mingw32/lib -w -lm -l:libSDL2.a -Wl,-subsystem,windows -lole32 -loleaut32 -limm32 -lwinmm -lversion -lsetupapi -lgdi32
+WINLDFLAGS = -w -lm -LSDL/windows/lib -l:libSDL2.a -Wl,-subsystem,windows -lole32 -loleaut32 -limm32 -lwinmm -lversion -lsetupapi -lgdi32
 
 CC = gcc
 run: linux
@@ -35,6 +35,6 @@ test: test.o
 	./test
 
 clean:
-	-rm*.o
+	-rm *.o
 	-rm *.og
 	-rm main
