@@ -1,7 +1,7 @@
 GLOBALCFLAGS = -O3
 WINCFLAGS = -ISDL/Windows/include
 LINUXLDFLAGS = -lSDL2 -lm
-WINLDFLAGS = -w -lm -LSDL/windows/lib -l:libSDL2.a -Wl,-subsystem,windows -lole32 -loleaut32 -limm32 -lwinmm -lversion -lsetupapi -lgdi32
+WINLDFLAGS = -w -lm -LSDL/windows/lib -l:libSDL2.a -mwindows -lole32 -loleaut32 -limm32 -lwinmm -lversion -lsetupapi# -lgdi32#-Wl,-subsystem,windows 
 
 CC = gcc
 run: linux
