@@ -115,10 +115,6 @@ void submit(scene *s, double i, double j, double k, physicsT *physics) {
 
 }
 
-int WinMain(int argc, char *argv[]) {
-    main(argc, argv);
-}
-
 int main(int argc, char *argv[]) {
     SDL_Init(SDL_INIT_VIDEO);
     SDL_Window *w = SDL_CreateWindow("Test", 100, 100, 800, 800, SDL_TEXTUREACCESS_TARGET);
@@ -160,4 +156,8 @@ int main(int argc, char *argv[]) {
         physicsStep(physics);
         compileScene(s);
     }
+}
+
+int WinMain(int argc, char *argv[]) {
+    return main(argc, argv);
 }

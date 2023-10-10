@@ -49,6 +49,7 @@ scene *alloc_scene(void)
 
 void submitQuaternionRotation(scene *s, quaternion *rotation) {
     multiplyQuaternion(rotation, s->c->q, s->c->q);
+    //multiplyQuaternion(s->c->q, rotation, s->c->q);
 }
 
 void submitRotation(scene *s, int rotation, int direction) {
@@ -90,40 +91,40 @@ void submit_pt(scene *s, quaternion *p)
 
 int compute_one(quaternion *p, scene *s, SDL_FPoint *op, SDL_Point *jp)
 {
-    quaternion qin;
-    quaternion qout;
-    quaternion qtemp;
-    CREATE_QUATERNION(qin, p->i - s->c->cx, p->j - s->c->cy, p->k - s->c->cz);
-    multiplyQuaternion(s->c->q, &qin, &qtemp);
-    multiplyWithInverseSecondQuaternion(&qtemp, s->c->q, &qout);
-    double outx = qout.i;
-    double outy = qout.j;
-    double outz = qout.k;
+    quaternion q;
+    CREATE_QUATERNION(q, p->i - s->c->cx, p->j - s->c->cy, p->k - s->c->cz);
+    multiplyQuaternion(s->c->q, &q, &q);
+    multiplyWithInverseSecondQuaternion(&q, s->c->q, &q);
+    /*
+    double outx = q.i;
+    double outy = q.j;
+    double outz = q.k;
+    */
     double angle1;
     double angle2;
-    if (s->settings->useArctan) {
-        angle1 = SDL_atan2(outz, outx);
-        angle2 = SDL_atan2(outy, outx);
-    } else {
-        angle1 = outz / outx;
-        angle2 = outy / outx;
-    }
-    if (angle1 > M_PI_2 || angle1 < -M_PI_2 || angle2 > M_PI_2 || angle2 < -M_PI_2 || outx < 0)
+    // if (s->settings->useArctan) {
+    //     angle1 = SDL_atan2(outz, outx);
+    //     angle2 = SDL_atan2(outy, outx);
+    // } else {
+    angle1 = q.k / q.i;
+    angle2 = q.j / q.i;
+    // }
+    if (angle1 > M_PI_2 || angle1 < -M_PI_2 || angle2 > M_PI_2 || angle2 < -M_PI_2 || q.i < 0)
     {
         // This texture is behind the camera, so we don't need to render it
         // This assumes the fov is less than 180
         return -1;
     }
     // SDL uses both points and float points for some reason, so we have to create both
-    if (op != NULL)
-    {
-        op->x = angle1 * 180 * 800 / (s->settings->fov * M_PI) + 400;
-        op->y = angle2 * 180 * 800 / (s->settings->fov * M_PI) + 400;
-    }
     if (jp != NULL)
     {
         jp->x = angle1 * 180 * 800 / (s->settings->fov * M_PI) + 400;
         jp->y = angle2 * 180 * 800 / (s->settings->fov * M_PI) + 400;
+    }
+    if (op != NULL)
+    {
+        op->x = angle1 * 180 * 800 / (s->settings->fov * M_PI) + 400;
+        op->y = angle2 * 180 * 800 / (s->settings->fov * M_PI) + 400;
     }
     return 0;
 }

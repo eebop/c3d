@@ -21,7 +21,7 @@ entity *allocEntity() {
 void regenerateCenter(entity *e) {
     double counter = 0;
     CREATE_QUATERNION(e->centerofmass, 0, 0, 0);
-    for (int i=0;i!=e->useobjs;i++) {
+    for (unsigned int i=0;i!=e->useobjs;i++) {
         if (e->o[i]->isreal) {
             for (int j=0;j!=8;j++) {
                 counter++;
@@ -102,7 +102,7 @@ void stepEntity(entity *e, double amount) {
     movement.i = e->velocity.i * amount;
     movement.j = e->velocity.j * amount;
     movement.k = e->velocity.k * amount;
-    for (int j=0;j!=e->useobjs;j++) {
+    for (unsigned int j=0;j!=e->useobjs;j++) {
         step(e->o[j], &(e->centerofmass), &rotation, &movement);
         regenerateCenter(e);
     }
