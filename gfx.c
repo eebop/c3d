@@ -1,5 +1,6 @@
 #include <SDL2/SDL.h>
 #include <math.h>
+#include <stdio.h>
 #include "main.h"
 #include "gfx.h"
 #include "quaternion.h"

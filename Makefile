@@ -23,5 +23,4 @@ main: main.o gfx.o quaternion.o events.o abstraction.o
 
 clean:
 	-rm *.o
-	-rm *.og
 	-rm main
