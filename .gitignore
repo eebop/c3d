@@ -9,4 +9,4 @@ prof_output
 valgrind.rpt
 c3d.sln
 c3d.vcxproj*
-main.exe
+*.exe
