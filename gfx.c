@@ -96,17 +96,8 @@ int compute_one(quaternion *p, scene *s, SDL_FPoint *op, SDL_Point *jp)
     CREATE_QUATERNION(q, p->i - s->c->cx, p->j - s->c->cy, p->k - s->c->cz);
     multiplyQuaternion(s->c->q, &q, &q);
     multiplyWithInverseSecondQuaternion(&q, s->c->q, &q);
-    /*
-    double outx = q.i;
-    double outy = q.j;
-    double outz = q.k;
-    */
     double angle1;
     double angle2;
-    // if (s->settings->useArctan) {
-    //     angle1 = SDL_atan2(outz, outx);
-    //     angle2 = SDL_atan2(outy, outx);
-    // } else {
     angle1 = q.k / q.i;
     angle2 = q.j / q.i;
     // }
