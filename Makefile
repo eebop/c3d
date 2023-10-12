@@ -1,6 +1,6 @@
 GLOBALCFLAGS = -O3 -Wall -Wextra
 WINCFLAGS = -ISDL/Windows/include
-GLOBALCFLAGS = -lm
+GLOBALCFLAGS = -lm -march=native -Wpsabi
 LINUXLDFLAGS = -lSDL2
 WINLDFLAGS = -w -LSDL/windows/lib -l:libSDL2.a -mwindows -lole32 -loleaut32 -limm32 -lwinmm -lversion -lsetupapi# -lgdi32#-Wl,-subsystem,windows 
 
