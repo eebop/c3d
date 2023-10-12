@@ -17,11 +17,23 @@ typedef struct {
     unsigned int maxobjs;
     unsigned int useobjs;
 } entity;
+
+typedef struct {
+    texture **face;
+    int numfaces;
+    int maxfaces;
+    quaternion **edge1;
+    quaternion **edge2;
+    int numedges;
+    int maxedges;
+} multibucket;
+
 typedef struct {
     entity **data;
     unsigned int maxdata;
     unsigned int usedata;
     uint64_t last_tick;
+    multibucket collisionTable[4096];
 } physicsT;
 
 physicsT *allocPhysics(void);

@@ -11,9 +11,7 @@ void mouseUpdate(SDL_Event event, scene *s) {
 }
 
 void update_debug(SDL_Event event, scene *s) {
-    quaternion qin;
-    quaternion qtemp;
-    quaternion qout;
+    quaternion q;
     double i = 0;
     double j = 0;
     double k = 0;
@@ -89,12 +87,12 @@ void update_debug(SDL_Event event, scene *s) {
                 break;
         }
     }
-    CREATE_QUATERNION(qin, i, j, k);
-    multiplyWithInverseFirstQuaternion(s->c->q, &qin, &qtemp);
-    multiplyQuaternion(&qtemp, s->c->q, &qout);
+    CREATE_QUATERNION(q, i, j, k);
+    multiplyWithInverseFirstQuaternion(s->c->q, &q, &q);
+    multiplyQuaternion(&q, s->c->q, &q);
 
-    s->c->cx += qout.i;
-    s->c->cy += qout.j;
-    s->c->cz += qout.k;
+    s->c->cx += q.i;
+    s->c->cy += q.j;
+    s->c->cz += q.k;
 
 }
