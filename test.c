@@ -1,27 +1,56 @@
 #include <stdio.h>
 #include <immintrin.h>
 
-#pragma pack (4)
-struct q {
-    float i;
-    float j;
-    float k;
-    float t;
-};
-typedef struct q q;
+typedef struct {
+    double t;
+    double i;
+    double j;
+    double k;
+} quaternion;
+
+void multiplyQuaternion(quaternion *q1, quaternion *q2, quaternion *qout) {
+    quaternion qtemp;
+    qtemp.t = (q1->t * q2->t) - (q1->i * q2->i) - (q1->j * q2->j) - (q1->k * q2->k);
+    qtemp.i = (q1->t * q2->i) + (q1->i * q2->t) - (q1->j * q2->k) + (q1->k * q2->j);
+    qtemp.j = (q1->t * q2->j) + (q1->i * q2->k) + (q1->j * q2->t) - (q1->k * q2->i);
+    qtemp.k = (q1->t * q2->k) - (q1->i * q2->j) + (q1->j * q2->i) + (q1->k * q2->t);
+    /*
+    qtemp.t = (q1->t * q2->t) + (q1->i * q2->i) + (q1->j * q2->j) + (q1->k * q2->k);
+    qtemp.i = (q1->t * q2->i) + (q1->i * q2->t) + (q1->j * q2->k) + (q1->k * q2->j);
+    qtemp.j = (q1->t * q2->j) + (q1->i * q2->k) + (q1->j * q2->t) + (q1->k * q2->i);
+    qtemp.k = (q1->t * q2->k) + (q1->i * q2->j) + (q1->j * q2->i) + (q1->k * q2->t);
+    */
+    qout->t = qtemp.t;
+    qout->i = qtemp.i;
+    qout->j = qtemp.j;
+    qout->k = qtemp.k;
+}
+
+void accMQ(quaternion *q1, quaternion *q2, quaternion *qout) {
+    __m256d q1_ = _mm256_loadu_pd((double *) q1);
+    __m256d t = _mm256_loadu_pd((double *) q2);
+    __m256d i = _mm256_permute_pd(t, 5);
+    __m256d j = _mm256_castsi256_pd(_mm256_permute2x128_si256(_mm256_castpd_si256(t), _mm256_castpd_si256(t), 1));
+    __m256d k = _mm256_permute_pd(j, 5);
+    t = _mm256_mul_pd(t, _mm256_set_pd( q1->t,  q1->t,  q1->t,  q1->t));
+    i = _mm256_mul_pd(i, _mm256_set_pd(-q1->i,  q1->i,  q1->i, -q1->i));
+    j = _mm256_mul_pd(j, _mm256_set_pd( q1->j,  q1->j, -q1->j, -q1->j));
+    k = _mm256_mul_pd(k, _mm256_set_pd( q1->k, -q1->k,  q1->k, -q1->k));
+    __m256d qout_ = _mm256_add_pd(_mm256_add_pd(t, i), _mm256_add_pd(j, k));
+    _mm256_storeu_pd((double *) qout, qout_);
+}
+
 int WinMain() {
-#ifdef __AVX__
-    printf("avx\n");
-#endif
-    printf("%d\n", __alignof(float));
-    float a[8] = {0.1, 0.2, 3.1, 2.2, 0.1, 0.2, 3.1, 2.2};
-    float b[8] = {0.1, 0.1, 1.3, 1.1, 0.1, 0.2, 3.1, 2.2};
-    float o[8];
-    __m256 a_ = _mm256_loadu_ps(a);
-    __m256 b_ = _mm256_loadu_ps(b);
-    __m256 ot = _mm256_add_ps(a_, b_);
-    _mm256_storeu_ps(o, ot);
-    printf("%f, %f, %f, %f, %f, %f, %f, %f\n", o[0], o[1], o[2], o[3], o[4], o[5], o[6], o[7]);
+    quaternion q1 = {0.1, 2.0, 1.0, 3.0};
+    quaternion q2 = {0.2, 1.0, 2.0, 1.1};
+    //quaternion q1 = {0, 0, 1, 0};
+    //quaternion q2 = {0, 0, 2, 0};
+    quaternion qout;
+    multiplyQuaternion(&q1, &q2, &qout);
+    printf("%f, %f, %f, %f\n", qout.t, qout.i, qout.j, qout.k);
+    accMQ(&q1, &q2, &qout);
+    printf("%f, %f, %f, %f\n", qout.t, qout.i, qout.j, qout.k);
+
 }
 
 
