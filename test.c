@@ -50,11 +50,8 @@ int WinMain() {
     printf("%f, %f, %f, %f\n", qout.t, qout.i, qout.j, qout.k);
     accMQ(&q1, &q2, &qout);
     printf("%f, %f, %f, %f\n", qout.t, qout.i, qout.j, qout.k);
-
+    return 0;
 }
-
-
-
-
-
-
+int main() {
+    return WinMain();
+}
