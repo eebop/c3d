@@ -1,4 +1,4 @@
-GLOBALCFLAGS = -O3 -Wall -Wextra -march=native -Wpsabi -pg -g
+GLOBALCFLAGS = -O3 -Wall -Wextra -march=native -pg -g
 WINCFLAGS = -ISDL/Windows/include
 GLOBALDFLAGS = -lm
 LINUXLDFLAGS = -lSDL2
