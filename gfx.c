@@ -121,6 +121,22 @@ int compute_one(quaternion *p, scene *s, SDL_FPoint *op, SDL_Point *jp)
     return 0;
 }
 
+#ifdef __AVX__
+int compute_four(quaternion *p1, quaternion *p2, quaternion *p3, quaternion *p4, scene *s, SDL_FPoint *farr, SDL_Point *parr) {
+    quaternion qt1, qt2, qt3, qt4;
+    //CREATE_QUATERNION(q1, p->i - s->c->cx, p->j - s->c->cy, p->k - s->c->cz);
+
+}
+#else
+int compute_four(quaternion *p1, quaternion *p2, quaternion *p3, quaternion *p4, scene *s, SDL_FPoint *farr, SDL_point *parr) {
+    int r = 0;
+    if (compute_one(p1, s, farr  , parr  )) r += 8;
+    if (compute_one(p2, s, farr+1, parr+1)) r += 4;
+    if (compute_one(p3, s, farr+2, parr+2)) r += 2;
+    if (compute_one(p4, s, farr+3, parr+3)) r += 1;
+    return 0;
+}
+#endif
 unsigned int lt(scene *s, texture *t1, texture *t2)
 {
     if (t1->front) {
