@@ -5,6 +5,10 @@
 #include "gfx.h"
 #include "quaternion.h"
 
+#ifdef __AVX__
+#include <immintrin.h>
+#endif
+
 
 static quaternion rotations[6] = {
     {0.9996988186962042, -0.024541228522912288, 0, 0},
@@ -120,23 +124,61 @@ int compute_one(quaternion *p, scene *s, SDL_FPoint *op, SDL_Point *jp)
     }
     return 0;
 }
-
+/*
 #ifdef __AVX__
 int compute_four(quaternion *p1, quaternion *p2, quaternion *p3, quaternion *p4, scene *s, SDL_FPoint *farr, SDL_Point *parr) {
     quaternion qt1, qt2, qt3, qt4;
-    //CREATE_QUATERNION(q1, p->i - s->c->cx, p->j - s->c->cy, p->k - s->c->cz);
-
+    double outx[4];
+    double outy[4];
+    CREATE_QUATERNION(qt1, p1->i - s->c->cx, p1->j - s->c->cy, p1->k - s->c->cz);
+    CREATE_QUATERNION(qt2, p2->i - s->c->cx, p2->j - s->c->cy, p2->k - s->c->cz);
+    CREATE_QUATERNION(qt3, p3->i - s->c->cx, p3->j - s->c->cy, p3->k - s->c->cz);
+    CREATE_QUATERNION(qt4, p4->i - s->c->cx, p4->j - s->c->cy, p4->k - s->c->cz);
+    multiplyQuaternion(s->c->q, &qt1, &qt1);
+    multiplyQuaternion(s->c->q, &qt2, &qt2);
+    multiplyQuaternion(s->c->q, &qt3, &qt3);
+    multiplyQuaternion(s->c->q, &qt4, &qt4);
+    multiplyWithInverseSecondQuaternion(&qt1, s->c->q, &qt1);
+    multiplyWithInverseSecondQuaternion(&qt2, s->c->q, &qt2);
+    multiplyWithInverseSecondQuaternion(&qt3, s->c->q, &qt3);
+    multiplyWithInverseSecondQuaternion(&qt4, s->c->q, &qt4);
+    __m256d x = _mm256_set_pd(qt4.i, qt3.i, qt2.i, qt1.i);
+    __m256d y = _mm256_set_pd(qt4.j, qt3.j, qt2.j, qt1.j);
+    __m256d z = _mm256_set_pd(qt4.k, qt3.k, qt2.k, qt1.k);
+    _mm256_store_pd(outx, x);
+    int ret = 0;
+    if (outx[0] < 0) ret += 1;
+    if (outx[1] < 0) ret += 2;
+    if (outx[2] < 0) ret += 4;
+    if (outx[3] < 0) ret += 8;
+    if (ret) {
+        return ret;
+    }
+    __m256d angle1 = _mm256_div_pd(z, x);
+    __m256d angle2 = _mm256_div_pd(y, x);
+    __m256d mul = _mm256_set1_pd(180.0 * 800.0 / (s->settings->fov * M_PI));
+    __m256d add = _mm256_set1_pd(400.0);
+    _mm256_store_pd(outx, _mm256_add_pd(_mm256_mul_pd(angle1, mul), add));
+    _mm256_store_pd(outy, _mm256_add_pd(_mm256_mul_pd(angle2, mul), add));
+    for (int i=0;i!=4;i++) {
+        farr[i].x = outx[i];
+        farr[i].y = outy[i];
+        parr[i].x = outx[i];
+        parr[i].y = outy[i];
+    }
+    return 0;
 }
 #else
-int compute_four(quaternion *p1, quaternion *p2, quaternion *p3, quaternion *p4, scene *s, SDL_FPoint *farr, SDL_point *parr) {
+*/
+int compute_four(quaternion *p1, quaternion *p2, quaternion *p3, quaternion *p4, scene *s, SDL_FPoint *farr, SDL_Point *parr) {
     int r = 0;
     if (compute_one(p1, s, farr  , parr  )) r += 8;
     if (compute_one(p2, s, farr+1, parr+1)) r += 4;
     if (compute_one(p3, s, farr+2, parr+2)) r += 2;
     if (compute_one(p4, s, farr+3, parr+3)) r += 1;
-    return 0;
+    return r;
 }
-#endif
+//#endif
 unsigned int lt(scene *s, texture *t1, texture *t2)
 {
     if (t1->front) {
@@ -270,6 +312,7 @@ void DrawCircle(SDL_Renderer* renderer, int32_t centreX, int32_t centreY, int32_
 void render(SDL_Renderer *r, scene *s)
 {
     SDL_Vertex v[6];
+    SDL_FPoint f[4];
     SDL_Point p[5];
     for (int k = 0; k != 6; k++)
     {
@@ -281,13 +324,19 @@ void render(SDL_Renderer *r, scene *s)
             for (int k = 0; k!=6;k++) {
                 v[k].color = s->textures[i]->c;
             }
-            for (int j = 0; j != 4; j++)
-            {
+            if (compute_four(s->points[s->textures[i]->p[0]], s->points[s->textures[i]->p[1]], s->points[s->textures[i]->p[2]], s->points[s->textures[i]->p[3]], s, f, p)) {
+                continue;
+            }
+            // for (int j = 0; j != 4; j++)
+            // {
 
-                if (compute_one(s->points[s->textures[i]->p[j]], s, &v[j].position, &p[j]))
-                {
-                    goto end;
-                }
+            //     if (compute_one(s->points[s->textures[i]->p[j]], s, &v[j].position, &p[j]))
+            //     {
+            //         goto end;
+            //     }
+            // }
+            for (int j = 0; j!=4;j++) {
+                v[j].position = f[j];
             }
             v[4] = v[0];
             v[5] = v[2];
